@@ -17,9 +17,18 @@ export default class Vector2 {
         this.add(new Vector2(x,y));
     }
 
-    add(vector2) {
-        this.x += vector2.x;
-        this.y += vector2.y;
+    add(vector2, newVector) {
+        const v = newVector ? this.clone() : this;
+        v.x += vector2.x;
+        v.y += vector2.y;
+        return v;
+    }
+
+    deduce(vector2, newVector) {
+        const v = newVector ? this.clone() : this;
+        v.x -= vector2.x;
+        v.y -= vector2.y;
+        return v;
     }
 
 }

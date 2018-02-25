@@ -1,6 +1,7 @@
 import Vector2 from '../core/Vector2';
 type typeOptions = {
     position?: Vector2,
+    canvas: HTMLElement,
     radius?: number
 }
 
@@ -9,17 +10,20 @@ export default class Camera {
     radius: number;
     visibleMap: Array<number>;
 
-    constructor({ position = new Vector2(0,0), radius = 4 } : typeOptions) {
+    constructor({ position = new Vector2(0,0), radius = 100 } : typeOptions) {
         this.position = position;
         this.radius = radius;
     }
 
     getVisibleTiles(map) {
+
         if (!this.lastPosition || !this.lastPosition.comparePosition(this.position)) {
-            const startingX = this.position.x-this.radius;
-            const endingX   = this.position.x+this.radius;
-            const startingY = this.position.y-this.radius;
-            const endingY   = this.position.y+this.radius;
+            const startingTile = map.screenSpaceToMap(this.position.x-this.radius, this.position.y-this.radius*map.tileRatio);
+            const endingTile = map.screenSpaceToMap(this.position.x+this.radius, this.position.y+this.radius*map.tileRatio);
+            const startingX = Math.max(0, Math.ceil(startingTile.x));
+            const endingX   = Math.min(Math.ceil(endingTile.x), map.tiles.length-1);
+            const startingY = Math.max(0, Math.ceil(startingTile.y));
+            const endingY   = Math.min(Math.ceil(endingTile.y), map.tiles[0].length-1);
             const visibleTiles = [];
             let _xLength;
             let _yLength;
@@ -49,6 +53,9 @@ export default class Camera {
         }
 
         return this.visibleMap;
+    }
+
+    centerOnMap(map) {
     }
 
     move(x,y) {

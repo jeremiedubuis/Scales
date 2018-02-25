@@ -40,6 +40,8 @@ scales.api.load([tiles, link]).then((images) => {
 
     scales.update();
 
+    scales.renderer.camera.centerOnMap(map);
+
     window.onkeydown = function(e) {
 
         if (!scales.paused) {
