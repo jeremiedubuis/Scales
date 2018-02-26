@@ -8,6 +8,11 @@ export default function api(scales) {
 
     return {
 
+
+        onLoad(cb) {
+
+        },
+
         createCharacter(id, sprite) {
             return new GameObject(id, sprite);
         },
@@ -33,8 +38,13 @@ export default function api(scales) {
             return scales.loader.loadImages(sources, cb);
         },
 
-        moveCamera(x,y) {
-            return scales.renderer.camera.move(x, y);
+        camera: {
+            move(x,y) {
+                return scales.renderer.camera.move(x, y);
+            },
+            setRadius(radius) {
+                scales.renderer.camera.setRadius(radius);
+            }
         },
 
         spawn(gameObject, x, y) {

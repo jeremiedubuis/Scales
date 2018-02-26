@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "parcel src/index.html"
+    "start": "parcel src/index.html --no-hmr"
   },
   "devDependencies": {
     "babel-polyfill": "^6.26.0",

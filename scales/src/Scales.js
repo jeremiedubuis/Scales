@@ -3,9 +3,13 @@ import api from './api';
 import Renderer from './rendering/Renderer';
 import StateHandler from './state/StateHandler';
 import Loader from './state/Loader';
+import configLoader from './configLoader';
+import Dispatcher from './core/Dispatcher';
 
 let time;
 let prevTime;
+
+const dispatcher = new Dispatcher();
 
 type typeOptions = {
     frameRate: number
@@ -18,16 +22,21 @@ export default class Scales {
 
     constructor(canvas: HTMLCanvasElement, { frameRate = 25 } : typeOptions) {
 
+        Scales.on('load', (config) => this.onLoad(canvas, frameRate, config));
+        this.api = api(this);
+        this.loader = new Loader();
+        configLoader.load(this.api);
+
+    }
+
+    onLoad(canvas, frameRate, config) {
         time = prevTime = new Date().getTime();
         this.currentFrame = 0;
         this.frameRate = frameRate;
         this.stateHandler = new StateHandler();
-        this.renderer = new Renderer(canvas);
-        this.loader = new Loader();
-        this.api = api(this);
+        this.renderer = new Renderer(canvas, config);
         this.update = this.update.bind(this);
         this.paused = true;
-
     }
 
     update() {
@@ -42,6 +51,18 @@ export default class Scales {
         }
 
         requestAnimationFrame(this.update);
+    }
+
+    static on(str, cb) {
+        dispatcher.on(str, cb);
+    }
+
+    static off(str, cb) {
+        dispatcher.off(str, cb);
+    }
+
+    static trigger(str, params) {
+        dispatcher.trigger(str,params);
     }
 
 }
