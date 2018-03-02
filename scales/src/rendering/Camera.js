@@ -20,13 +20,15 @@ const coordinatesAreVisible = (arr, values) => {
 export default class Camera {
     position: Vector2;
     radius: number;
+    speed: number;
     visibleMap: Array<number>;
 
-    constructor({ position = new Vector2(0,0), radius = 150, tileSize = 52 } : typeOptions) {
+    constructor({ position = new Vector2(0,0), radius = 150, speed = 10, tileSize = 52 } : typeOptions) {
         this.position = position;
         this.radius = radius;
-        this.tileSize = 52;
-        this.tileRadius = Math.ceil(this.radius/this.tileSize);
+        this.tileSize = tileSize
+        this.speed = speed;
+        this.tileRadius = Math.ceil(this.radius/this.tileSize) + 2;
     }
 
     getVisibleTiles(map) {
@@ -34,9 +36,19 @@ export default class Camera {
         if (!this.lastPosition || !this.lastPosition.comparePosition(this.position)) {
 
 
+            this.visibleMap = {
+                tiles: [],
+                deltaX: this.position.x / this.tileSize,
+                deltaY: this.position.y / this.tileSize
+            };
+            const tileX = Math.floor(this.visibleMap.deltaX);
+            this.visibleMap.deltaX-= tileX;
+            const tileY = Math.floor(this.visibleMap.deltaY);
+            this.visibleMap.deltaY-= tileY;
+
             const visibleTiles =  this.getTilesInRadius(
-                Math.floor(this.position.x / this.tileSize),
-                Math.floor(this.position.y / this.tileSize)
+                tileX,
+                tileY
             );
 
             let biggestX = visibleTiles[0][0];
@@ -50,15 +62,10 @@ export default class Camera {
                 else if (coords[1] > biggestY) biggestY = coords[1];
             });
 
-
-            this.visibleMap = [];
-
-            console.log(smallestX,biggestX, smallestY,biggestY);
-
             for (let y = smallestY; y<=biggestY; y++) {
-                this.visibleMap.push([]);
+                this.visibleMap.tiles.push([]);
                 for (let x = smallestX; x<=biggestX; x++) {
-                    let row = this.visibleMap[this.visibleMap.length-1];
+                    let row = this.visibleMap.tiles[this.visibleMap.tiles.length-1];
                     if (!coordinatesAreVisible(visibleTiles, [x,y])) row.push(0);
                     else row.push(map.tiles[x] && map.tiles[x][y] || 0);
                 }
@@ -93,7 +100,7 @@ export default class Camera {
     }
 
     move(x,y) {
-        this.position.move(x*this.tileSize, y*this.tileSize);
+        this.position.move(x*this.speed, y*this.speed);
     }
 
     setRadius(radius) {

@@ -35,6 +35,7 @@ export default function api(scales) {
         },
 
         load(sources, cb) {
+            if (!Array.isArray(sources)) sources = [sources];
             return scales.loader.loadImages(sources, cb);
         },
 
@@ -54,6 +55,11 @@ export default function api(scales) {
         togglePlayPause() {
             scales.paused = !scales.paused;
             if (!scales.paused) scales.update();
+            return scales.paused;
+        },
+
+        setFrame(frame) {
+            scales.setFrame(frame);
         }
 
     };

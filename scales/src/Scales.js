@@ -33,7 +33,7 @@ export default class Scales {
         time = prevTime = new Date().getTime();
         this.currentFrame = 0;
         this.frameRate = frameRate;
-        this.stateHandler = new StateHandler();
+        this.stateHandler = new StateHandler(config);
         this.renderer = new Renderer(canvas, config);
         this.update = this.update.bind(this);
         this.paused = true;
@@ -48,9 +48,15 @@ export default class Scales {
             this.currentFrame += deltaFrames;
             this.renderer.update(this.currentFrame, this.stateHandler.getState());
             prevTime = time;
+            Scales.trigger('update', this.currentFrame);
         }
 
         requestAnimationFrame(this.update);
+    }
+
+    setFrame(currentFrame) {
+        this.currentFrame = currentFrame;
+        time = prevTime = new Date().getTime();
     }
 
     static on(str, cb) {
