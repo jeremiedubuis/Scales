@@ -1,6 +1,5 @@
 import Camera from './Camera';
-import tileToIsometric from './tileToIsometric';
-import worldToScreen from './isometricToTile';
+import { tileToScreen, worldToScreen } from '../core/isometricProjection';
 import { ease, easeInOutQuad } from './easing';
 
 export default class Renderer {
@@ -21,31 +20,30 @@ export default class Renderer {
         console.log('frame: '+currentFrame)
         console.log('=============================')
         this.c2d.clearRect(0, 0, ...this.canvasSize);
-        this.xOffset = state.map.tileHalfWidth * state.map.tiles.length;
-        this.renderMap( state.map );
-        this.renderShadowOval(currentFrame);
+        const xOffset = state.map.tileHalfWidth * state.map.tiles.length;
+        this.renderMap( state.map, xOffset );
+        this.renderShadowOval(currentFrame, xOffset);
         this.renderFrames(currentFrame);
-        state.gameObjects.forEach((go) => this.renderGameObject(state.map, go, currentFrame) );
+        state.gameObjects.forEach((go) => this.renderGameObject(state.map, xOffset, go, currentFrame) );
     }
 
-    renderMap(map) {
+    renderMap(map, xOffset) {
         const _activeMap = this.camera.getVisibleTiles(map);
-
         for (let y=0, _length = _activeMap.tiles.length; y < _length; y++) {
             for (let x = 0, xLength = _activeMap.tiles[y].length; x<xLength; x++) {
                 map.getTile(_activeMap.tiles[y][x])
-                   .render(this.c2d, this.tileToScreen(x-_activeMap.deltaX, y-_activeMap.deltaY), this.xOffset);
+                   .render(this.c2d, tileToScreen(x-_activeMap.tileDeltaX, y-_activeMap.tileDeltaY, xOffset));
             }
 
         }
     }
 
-    renderShadowOval(currentFrame) {
+    renderShadowOval(currentFrame, xOffset) {
         this.c2d.save();
         this.c2d.globalCompositeOperation = 'destination-atop';
 
         const halfRadius = this.camera.radius*.5;
-        const x = this.xOffset+this.tileSize*.5;
+        const x = xOffset+this.tileSize*.5;
         const y = halfRadius + this.tileSize;
 
         this.c2d.ellipse(
@@ -104,9 +102,11 @@ export default class Renderer {
         );
     }
 
-    renderGameObject(map, gameObject, frame) {
+    renderGameObject(map, xOffset, gameObject, frame) {
         if (this.isVisible(gameObject)) {
-            gameObject.render(this.c2d, this.worldToScreen(gameObject.position.x, gameObject.position.y), frame );
+            const v2 = gameObject.position.deduce(this.camera.position,true);
+            console.log(worldToScreen(v2.x, v2.y, xOffset))
+            gameObject.render(this.c2d, worldToScreen(v2.x, v2.y, xOffset), frame );
         }
     }
 
@@ -116,24 +116,6 @@ export default class Renderer {
             gameObject.position.x<= this.camera.position.x+this.camera.position.radius+1) &&
             (gameObject.position.y >= this.camera.position.y-this.camera.position.radius &&
             gameObject.position.y<= this.camera.position.y+this.camera.position.radius+1);
-    }
-
-    tileToScreen(x,y) {
-        return tileToIsometric(
-            this.tileSize*.5,
-            this.tileSize*.25,
-            x,
-            y
-        );
-    }
-
-    worldToScreen(x,y) {
-        return worldToScreen(
-            this.tileSize*.5,
-            this.tileSize*.25,
-            x,
-            y
-        );
     }
 
 }

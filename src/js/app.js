@@ -3,6 +3,20 @@ import link from '../img/characters/link.jpg';
 
 const scales = window.scales = new Scales( document.getElementsByTagName('canvas')[0], {} );
 
+const onFieldPressEnter = (els,cb) => {
+
+    if (!Array.isArray(els)) els = [els];
+
+    els.forEach(el => el.onkeydown = (e) => {
+        e.stopPropagation();
+        if (e.which === 13) {
+            cb(e);
+        }
+    });
+
+};
+
+
 document.getElementById('play').onclick = () => {
     const wrapper = document.getElementById('wrapper');
     if (scales.api.togglePlayPause()) {
@@ -53,21 +67,6 @@ Scales.on('load', ({tiles}) => {
 
         scales.renderer.camera.centerOnMap(map);
 
-
-        document.getElementById('camera-radius').onkeydown = (e) => {
-            e.stopPropagation();
-            if (e.which === 13) {
-                scales.api.camera.setRadius(e.target.value);
-            }
-        };
-
-        frame.onkeydown = (e) => {
-            e.stopPropagation();
-            if (e.which === 13) {
-                scales.setFrame(parseInt(e.target.value));
-            }
-        };
-
         window.onkeydown = function(e) {
 
             if (!scales.paused) {
@@ -92,6 +91,18 @@ Scales.on('load', ({tiles}) => {
                 }
             }
         };
+
+        const cameraX = document.getElementById('camera-x');
+        const cameraY = document.getElementById('camera-y');
+
+        scales.api.on('camera::move', (pos) => {
+            cameraX.value = pos.x;
+            cameraY.value = pos.y;
+        });
+
+        onFieldPressEnter(document.getElementById('camera-radius'), (e) => scales.api.camera.setRadius(e.target.value));
+        onFieldPressEnter(frame, (e) => scales.setFrame(parseInt(e.target.value)));
+        onFieldPressEnter([cameraX,cameraY], (e) => scales.api.camera.moveTo(parseInt(cameraX.value), parseInt(cameraY.value)));
 
     });
 });

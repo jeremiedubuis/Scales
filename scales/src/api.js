@@ -3,11 +3,15 @@ import Map from './map/Map';
 import Sprite from './sprites/Sprite';
 import SpriteAnimated from './sprites/SpriteAnimated';
 import Tile from './map/Tile';
+import Scales from './Scales';
 
 export default function api(scales) {
 
     return {
 
+        on(str, cb) {
+            Scales.on(str, cb);
+        },
 
         onLoad(cb) {
 
@@ -40,9 +44,19 @@ export default function api(scales) {
         },
 
         camera: {
+
+            get position() {
+                return scales.renderer.camera.position;
+            },
+
             move(x,y) {
                 return scales.renderer.camera.move(x, y);
             },
+
+            moveTo(x,y) {
+                return scales.renderer.camera.moveTo(x, y);
+            },
+
             setRadius(radius) {
                 scales.renderer.camera.setRadius(radius);
             }

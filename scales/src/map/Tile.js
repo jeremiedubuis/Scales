@@ -14,8 +14,8 @@ export default class Tile {
         this.sprite = sprite;
     }
 
-    render(c2d,vector2: Vector2, xOffset: number) {
-        this.sprite.render(c2d, vector2, xOffset);
+    render(c2d,vector2: Vector2) {
+        this.sprite.render(c2d, vector2);
     }
 
     get width() {

@@ -11,6 +11,7 @@ export default class Vector2 {
 
     comparePosition(vector2 : Vector2) {
         if (vector2.x !== this.x || vector2.y !== this.y) return false;
+        return true;
     }
 
     move(x,y) {

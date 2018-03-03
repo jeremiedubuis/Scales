@@ -1,7 +1,5 @@
+import Scales from '../Scales';
 import Vector2 from '../core/Vector2';
-import isometricToTile from './isometricToTile';
-import tileToIsometric from './tileToIsometric';
-
 type typeOptions = {
     position?: Vector2,
     canvas: HTMLElement,
@@ -34,17 +32,17 @@ export default class Camera {
     getVisibleTiles(map) {
 
         if (!this.lastPosition || !this.lastPosition.comparePosition(this.position)) {
-
+            Scales.trigger('camera::move', this.position);
 
             this.visibleMap = {
                 tiles: [],
-                deltaX: this.position.x / this.tileSize,
-                deltaY: this.position.y / this.tileSize
+                tileDeltaX: this.position.x / this.tileSize,
+                tileDeltaY: this.position.y / this.tileSize
             };
-            const tileX = Math.floor(this.visibleMap.deltaX);
-            this.visibleMap.deltaX-= tileX;
-            const tileY = Math.floor(this.visibleMap.deltaY);
-            this.visibleMap.deltaY-= tileY;
+            const tileX = Math.floor(this.visibleMap.tileDeltaX);
+            this.visibleMap.tileDeltaX-= tileX;
+            const tileY = Math.floor(this.visibleMap.tileDeltaY);
+            this.visibleMap.tileDeltaY-= tileY;
 
             const visibleTiles =  this.getTilesInRadius(
                 tileX,
@@ -55,6 +53,9 @@ export default class Camera {
             let smallestX = visibleTiles[0][0];
             let biggestY = visibleTiles[0][1];
             let smallestY = visibleTiles[0][1];
+
+            this.visibleMap.firstTile = [smallestX, smallestY];
+
             visibleTiles.forEach(coords => {
                 if (coords[0] < smallestX) smallestX = coords[0];
                 else if (coords[0] > biggestX) biggestX = coords[0];
@@ -101,6 +102,11 @@ export default class Camera {
 
     move(x,y) {
         this.position.move(x*this.speed, y*this.speed);
+    }
+
+    moveTo(x,y) {
+        this.position.x = x;
+        this.position.y = y;
     }
 
     setRadius(radius) {
